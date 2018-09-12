@@ -20,23 +20,26 @@
 #include <Qt5Instance.hxx>
 #include <Qt5Printer.hxx>
 
+#ifndef _WIN32
 #include <vcl/svapp.hxx>
 #include <vcl/timer.hxx>
-#include <printerinfomanager.hxx>
 
 #include <jobset.h>
 #include <print.h>
-#include <salptype.hxx>
 #include <saldatabasic.hxx>
 
+#include <salptype.hxx>
+#include <printerinfomanager.hxx>
 #include <unx/genpspgraphics.h>
 
 using namespace psp;
+#endif
 
 /*
  *  static helpers
  */
 
+#ifndef _WIN32
 static OUString getPdfDir(const PrinterInfo& rInfo)
 {
     OUString aDir;
@@ -55,7 +58,9 @@ static OUString getPdfDir(const PrinterInfo& rInfo)
     }
     return aDir;
 }
+#endif
 
+#ifndef _WIN32
 SalInfoPrinter* Qt5Instance::CreateInfoPrinter(SalPrinterQueueInfo* pQueueInfo,
                                                ImplJobSetup* pJobSetup)
 {
@@ -65,9 +70,17 @@ SalInfoPrinter* Qt5Instance::CreateInfoPrinter(SalPrinterQueueInfo* pQueueInfo,
 
     return pPrinter;
 }
+#else
+SalInfoPrinter* Qt5Instance::CreateInfoPrinter(SalPrinterQueueInfo* /* pQueueInfo */,
+                                               ImplJobSetup* /* pJobSetup */)
+{
+    return nullptr;
+}
+#endif
 
 void Qt5Instance::DestroyInfoPrinter(SalInfoPrinter* pPrinter) { delete pPrinter; }
 
+#ifndef _WIN32
 std::unique_ptr<SalPrinter> Qt5Instance::CreatePrinter(SalInfoPrinter* pInfoPrinter)
 {
     // create and initialize SalPrinter
@@ -76,7 +89,14 @@ std::unique_ptr<SalPrinter> Qt5Instance::CreatePrinter(SalInfoPrinter* pInfoPrin
 
     return std::unique_ptr<SalPrinter>(pPrinter);
 }
+#else
+std::unique_ptr<SalPrinter> Qt5Instance::CreatePrinter(SalInfoPrinter* /* pInfoPrinter */)
+{
+    return std::unique_ptr<SalPrinter>();
+}
+#endif
 
+#ifndef _WIN32
 void Qt5Instance::GetPrinterQueueInfo(ImplPrnQueueList* pList)
 {
     PrinterInfoManager& rManager(PrinterInfoManager::get());
@@ -113,6 +133,9 @@ void Qt5Instance::GetPrinterQueueInfo(ImplPrnQueueList* pList)
         pList->Add(pInfo);
     }
 }
+#else
+void Qt5Instance::GetPrinterQueueInfo(ImplPrnQueueList* /* pList */) {}
+#endif
 
 void Qt5Instance::DeletePrinterQueueInfo(SalPrinterQueueInfo* pInfo) { delete pInfo; }
 
@@ -120,12 +143,18 @@ void Qt5Instance::GetPrinterQueueState(SalPrinterQueueInfo*) {}
 
 OUString Qt5Instance::GetDefaultPrinter()
 {
+#ifndef _WIN32
     PrinterInfoManager& rManager(PrinterInfoManager::get());
     return rManager.getDefaultPrinter();
+#else
+    return OUString();
+#endif
 }
 
-void Qt5Instance::PostPrintersChanged() {}
+#ifndef _WIN32
+void Qt5MocInstance::PostPrintersChanged() {}
 
-GenPspGraphics* Qt5Instance::CreatePrintGraphics() { return new GenPspGraphics(); }
+GenPspGraphics* Qt5MocInstance::CreatePrintGraphics() { return new GenPspGraphics(); }
+#endif
 
 /* vim:set shiftwidth=4 softtabstop=4 expandtab: */
