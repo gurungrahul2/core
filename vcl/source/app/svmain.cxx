@@ -192,10 +192,6 @@ int ImplSVMain()
 
     bool bInit = isInitVCL() || InitVCL();
 
-#ifdef MACOSX
-    postInitVCLinitNSApp();
-#endif
-
     if( bInit )
     {
         // call application main
@@ -234,11 +230,7 @@ int ImplSVMain()
 
 int SVMain()
 {
-    int nRet;
-    if( !Application::IsConsoleOnly() && ImplSVMainHook( &nRet ) )
-        return nRet;
-    else
-        return ImplSVMain();
+    return ImplSVMain();
 }
 
 // This variable is set when no Application object has been instantiated
