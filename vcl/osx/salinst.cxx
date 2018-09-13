@@ -114,7 +114,7 @@ public:
 
 void AquaSalInstance::delayedSettingsChanged( bool bInvalidate )
 {
-    osl::Guard< comphelper::SolarMutex > aGuard( *mpSalYieldMutex );
+    osl::Guard< comphelper::SolarMutex > aGuard( *GetYieldMutex() );
     AquaDelayedSettingsChanged* pIdle = new AquaDelayedSettingsChanged( bInvalidate );
     pIdle->SetDebugName( "AquaSalInstance AquaDelayedSettingsChanged" );
     pIdle->Start();
@@ -297,7 +297,7 @@ bool ImplSalYieldMutexTryToAcquire()
 {
     AquaSalInstance* pInst = GetSalData()->mpInstance;
     if ( pInst )
-        return pInst->mpSalYieldMutex->tryToAcquire();
+        return pInst->GetYieldMutex()->tryToAcquire();
     else
         return FALSE;
 }
@@ -306,7 +306,7 @@ void ImplSalYieldMutexRelease()
 {
     AquaSalInstance* pInst = GetSalData()->mpInstance;
     if ( pInst )
-        pInst->mpSalYieldMutex->release();
+        pInst->GetYieldMutex()->release();
 }
 
 SalInstance* CreateSalInstance()
@@ -354,13 +354,13 @@ void DestroySalInstance( SalInstance* pInst )
 }
 
 AquaSalInstance::AquaSalInstance()
-    : mnActivePrintJobs( 0 )
+    : SalInstance(o3tl::make_unique<SalYieldMutex>())
+    , mnActivePrintJobs( 0 )
     , mbIsLiveResize( false )
     , mbNoYieldLock( false )
     , mbTimerProcessed( false )
 {
-    mpSalYieldMutex = new SalYieldMutex;
-    mpSalYieldMutex->acquire();
+    GetYieldMutex()->acquire();
     maMainThread = osl::Thread::getCurrentIdentifier();
 }
 
@@ -386,21 +386,6 @@ void AquaSalInstance::ProcessEvent( SalUserEvent aEvent )
 {
     aEvent.m_pFrame->CallCallback( aEvent.m_nEvent, aEvent.m_pData );
     maWaitingYieldCond.set();
-}
-
-comphelper::SolarMutex* AquaSalInstance::GetYieldMutex()
-{
-    return mpSalYieldMutex;
-}
-
-sal_uInt32 AquaSalInstance::ReleaseYieldMutexAll()
-{
-    return mpSalYieldMutex->release( true/*bUnlockAll*/ );
-}
-
-void AquaSalInstance::AcquireYieldMutex( sal_uInt32 nCount )
-{
-    mpSalYieldMutex->acquire( nCount );
 }
 
 bool AquaSalInstance::IsMainThread() const
