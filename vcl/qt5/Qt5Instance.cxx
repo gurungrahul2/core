@@ -93,14 +93,15 @@ SalObject* Qt5Instance::CreateObject(SalFrame* pParent, SystemWindowData*, bool 
 void Qt5Instance::DestroyObject(SalObject* pObject) { delete pObject; }
 
 std::unique_ptr<SalVirtualDevice>
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
 Qt5Instance::CreateVirtualDevice(SalGraphics* pGraphics, long& nDX, long& nDY, DeviceFormat eFormat,
 #else
-Qt5Instance::CreateVirtualDevice(SalGraphics* /* pGraphics */, long& nDX, long& nDY, DeviceFormat eFormat,
+Qt5Instance::CreateVirtualDevice(SalGraphics* /* pGraphics */, long& nDX, long& nDY,
+                                 DeviceFormat eFormat,
 #endif
                                  const SystemGraphicsData* /* pData */)
 {
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
     if (m_bUseCairo)
     {
         SvpSalGraphics* pSvpSalGraphics = dynamic_cast<SvpSalGraphics*>(pGraphics);
@@ -137,7 +138,7 @@ SalSystem* Qt5Instance::CreateSalSystem() { return new Qt5System; }
 
 std::shared_ptr<SalBitmap> Qt5Instance::CreateSalBitmap()
 {
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
     if (m_bUseCairo)
         return std::make_shared<SvpSalBitmap>();
     else
@@ -273,7 +274,7 @@ VCLPLUG_QT5_PUBLIC SalInstance* create_SalInstance()
     for (int i = 0; i < nFakeArgc; i++)
         pFakeArgv[i] = pFakeArgvFreeable[i];
 
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
     char* session_manager = nullptr;
     if (getenv("SESSION_MANAGER") != nullptr)
     {
@@ -286,7 +287,7 @@ VCLPLUG_QT5_PUBLIC SalInstance* create_SalInstance()
     *pFakeArgc = nFakeArgc;
     pQApplication = new QApplication(*pFakeArgc, pFakeArgv);
 
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
     if (session_manager != nullptr)
     {
         // coverity[tainted_string] - trusted source for setenv

@@ -20,7 +20,7 @@
 #include <Qt5Instance.hxx>
 #include <Qt5Printer.hxx>
 
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
 #include <vcl/svapp.hxx>
 #include <vcl/timer.hxx>
 
@@ -39,7 +39,7 @@ using namespace psp;
  *  static helpers
  */
 
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
 static OUString getPdfDir(const PrinterInfo& rInfo)
 {
     OUString aDir;
@@ -60,7 +60,7 @@ static OUString getPdfDir(const PrinterInfo& rInfo)
 }
 #endif
 
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
 SalInfoPrinter* Qt5Instance::CreateInfoPrinter(SalPrinterQueueInfo* pQueueInfo,
                                                ImplJobSetup* pJobSetup)
 {
@@ -80,7 +80,7 @@ SalInfoPrinter* Qt5Instance::CreateInfoPrinter(SalPrinterQueueInfo* /* pQueueInf
 
 void Qt5Instance::DestroyInfoPrinter(SalInfoPrinter* pPrinter) { delete pPrinter; }
 
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
 std::unique_ptr<SalPrinter> Qt5Instance::CreatePrinter(SalInfoPrinter* pInfoPrinter)
 {
     // create and initialize SalPrinter
@@ -96,7 +96,7 @@ std::unique_ptr<SalPrinter> Qt5Instance::CreatePrinter(SalInfoPrinter* /* pInfoP
 }
 #endif
 
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
 void Qt5Instance::GetPrinterQueueInfo(ImplPrnQueueList* pList)
 {
     PrinterInfoManager& rManager(PrinterInfoManager::get());
@@ -143,7 +143,7 @@ void Qt5Instance::GetPrinterQueueState(SalPrinterQueueInfo*) {}
 
 OUString Qt5Instance::GetDefaultPrinter()
 {
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
     PrinterInfoManager& rManager(PrinterInfoManager::get());
     return rManager.getDefaultPrinter();
 #else
@@ -151,7 +151,7 @@ OUString Qt5Instance::GetDefaultPrinter()
 #endif
 }
 
-#ifndef _WIN32
+#if !(defined MACOSX || defined _WIN32)
 void Qt5MocInstance::PostPrintersChanged() {}
 
 GenPspGraphics* Qt5MocInstance::CreatePrintGraphics() { return new GenPspGraphics(); }
