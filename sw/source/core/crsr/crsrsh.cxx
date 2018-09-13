@@ -2358,7 +2358,7 @@ OUString SwCursorShell::GetSelText() const
 }
 
 /// get text only from current cursor position (until end of node)
-OUString SwCursorShell::GetText() const
+OUString SwCursorShell::GetTextUntilEndOfNode() const
 {
     OUString aText;
     if( m_pCurrentCursor->GetPoint()->nNode.GetIndex() ==
